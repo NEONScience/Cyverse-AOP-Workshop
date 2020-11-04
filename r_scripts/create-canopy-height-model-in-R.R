@@ -25,8 +25,9 @@ library(jsonlite)
 library(dplyr, quietly=T)
 library(downloader)
 
+# Use the NEON API to request information about available data products
+
 # Request data using the GET function & the API call
-req <- GET("http://data.neonscience.org/api/v0/products/DP1.10003.001")
 req <- GET("http://data.neonscience.org/api/v0/products/DP3.30024.001")
 req
 req.content <- content(req, as="parsed")
@@ -35,7 +36,7 @@ req.text <- content(req, as="text")
 
 # Flatten data frame to see available data. 
 avail <- jsonlite::fromJSON(req.text, simplifyDataFrame=T, flatten=T)
-View(avail)
+#View(avail)
 
 elev.urls <- unlist(avail$data$siteCodes$availableDataUrls)
 length(elev.urls) #total number of URLs
@@ -53,7 +54,8 @@ View(DSM.files)
 
 ## now, make a loop to download every file by pasting name together
 
-system("mkdir ~/data/DSM/ && mkdir ~/data/DSM/TEAK/")
+system("mkdir ~/data/DSM/")
+system("mkdir ~/data/DSM/TEAK/")
 pre = "cd ~/data/DSM/TEAK/ && wget -q "
 
 for(f in 1:length(DSM.files$name)){
@@ -64,6 +66,58 @@ for(f in 1:length(DSM.files$name)){
 
 } # END f
 
+
+## Mosaic DSMs
+a <- list.files("~/data/DSM/TEAK/", pattern = glob2rx("*.tif$"), full.names = TRUE)
+a
+
+# These steps from the 'mosaic()' function help files:
+x <- lapply(a, raster)
+names(x)[1:2] <- c('x', 'y')
+x$fun <- mean
+x$na.rm <- TRUE
+
+# Make the mosaic of four CHM tiles
+DSM <- do.call(mosaic, x)
+
+plot(DSM, col=terrain.colors(100))
+
+
+## Do the same for DTM
+DTM.files=elev.files$data$files[grep("DTM.tif", elev.files$data$files$name, fixed = T),]
+
+View(DTM.files)
+
+## now, make a loop to download every file by pasting name together
+
+system("mkdir ~/data/DTM/")
+system("mkdir ~/data/DTM/TEAK/")
+pre = "cd ~/data/DTM/TEAK/ && wget -q "
+
+for(f in 1:length(DTM.files$name)){
+  print(paste0("File #",f," ",DTM.files$name[f]))
+  file_names = paste0('"',DTM.files$url[f],'"', " -O ", DTM.files$name[f])
+  command = paste0(pre,file_names)
+  system(command)
+  
+} # END f
+
+
+## Mosaic DTMs
+a <- list.files("~/data/DTM/TEAK", pattern = glob2rx("*.tif$"), full.names = TRUE)
+a
+
+# These steps from the 'mosaic()' function help files:
+x <- lapply(a, raster)
+names(x)[1:2] <- c('x', 'y')
+x$fun <- mean
+x$na.rm <- TRUE
+
+# Make the mosaic of four CHM tiles
+system.time(
+DTM <- do.call(mosaic, x)
+)
+plot(DTM, col=terrain.colors(100))
 ## ----import-dsm---------------------------------------------------------------------------
 
 # assign raster to object
@@ -89,43 +143,16 @@ plot(dtm, main="Lidar Digital Terrain Model \n SJER, California")
 ## ----calculate-plot-CHM-------------------------------------------------------------------
 
 # use raster math to create CHM
-chm <- dsm - dtm
+CHM <- DSM - DTM
 
 # view CHM attributes
-chm
+CHM
 
-plot(chm, main="Lidar Canopy Height Model \n SJER, California")
-
-
-
-## ----challenge-code-raster-math, include=TRUE, results="hide", echo=FALSE-----------------
-# conversion 1m = 3.28084 ft
-chm_ft <- chm*3.28084
-
-# plot 
-plot(chm_ft, main="Lidar Canopy Height Model \n in feet")
-
-
-
-## ----canopy-function----------------------------------------------------------------------
-# Create a function that subtracts one raster from another
-# 
-canopyCalc <- function(DTM, DSM) {
-  return(DSM -DTM)
-  }
-    
-# use the function to create the final CHM
-chm2 <- canopyCalc(dsm,dtm)
-chm2
-
-# or use the overlay function
-chm3 <- overlay(dsm,dtm,fun = canopyCalc) 
-chm3 
-
+plot(CHM, main="Lidar Canopy Height Model \n TEAK, California")
 
 
 ## ----write-raster-to-geotiff, eval=FALSE, comment=NA--------------------------------------
 # write out the CHM in tiff format. 
-writeRaster(chm,paste0(wd,"chm_SJER.tif"),"GTiff")
+writeRaster(CHM,paste0(wd,"CHM_TEAK.tif"),"GTiff")
 
 
