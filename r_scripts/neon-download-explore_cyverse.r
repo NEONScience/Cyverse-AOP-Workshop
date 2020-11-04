@@ -167,18 +167,20 @@ byTileAOP("DP3.30015.001", site="WREF", year="2017", check.size = T,
           easting=veg$adjEasting, northing=veg$adjNorthing, buffer=999, savepath="~/data")
 
 a <- list.files("~/data/DP3.30015.001/2017/FullSite/D16/2017_WREF_1/L3/DiscreteLidar/CanopyHeightModelGtif/", pattern = glob2rx("*.tif$"), full.names = TRUE)
+a
 
+# These steps from the 'mosaic()' function help files:
 x <- lapply(a, raster)
 names(x)[1:2] <- c('x', 'y')
 x$fun <- mean
 x$na.rm <- TRUE
 
+# Make the mosaic of four CHM tiles
 y <- do.call(mosaic, x)
 
 
 
 plot(y, col=topo.colors(6))
 points(veg$adjEasting, veg$adjNorthing, pch=".", cex=2, col="red")
-text(vst_perplotperyear$easting, vst_perplotperyear$northing, labels=vst_perplotperyear$plotID)
+text(vst_perplotperyear$easting, vst_perplotperyear$northing, labels=substr(vst_perplotperyear$plotID,7,8))
 
-chm_big <- mosaic(allrasters, fun=mean)
