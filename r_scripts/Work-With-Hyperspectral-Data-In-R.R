@@ -7,8 +7,13 @@ library(rgdal)
 
 
 system("mkdir ~/data")
-system("cd ~/data && wget -q https://neon-aop-products.s3.data.neonscience.org:443/2019/FullSite/D17/2019_SJER_4/L3/Spectrometer/Reflectance/NEON_D17_SJER_DP3_257000_4112000_reflectance.h5 -O NEON_D17_SJER_DP3_257000_4112000_reflectance.h5")
-wd <- "~/data/" #This will depend on your local environment
+
+# Optional - download your own dataset using the NEON API - this file is already available in the NEON_workshop/data
+#system("cd ~/data && wget -q https://neon-aop-products.s3.data.neonscience.org:443/2019/FullSite/D17/2019_SJER_4/L3/Spectrometer/Reflectance/NEON_D17_SJER_DP3_257000_4112000_reflectance.h5 -O NEON_D17_SJER_DP3_257000_4112000_reflectance.h5")
+
+# Use this line to work with the dataset already saved to the NEON_workshop directory
+# Change this to "~/data/" if you want to download the dataset above using the line above
+wd <- "~/NEON_workshop/data/" #This will depend on your local environment
 setwd(wd)
 
 # Define the file name to be opened

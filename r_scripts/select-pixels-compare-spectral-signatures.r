@@ -11,12 +11,17 @@ library(ggplot2)
 # we want to save our files. Be sure to move the download into your working directory!
 
 system("mkdir ~/data")
-system("cd ~/data && wget -q https://ndownloader.figshare.com/files/21754221 -O NEON_hyperspectral_tutorial_example_subset.h5")
-wd <- "~/data/" #This will depend on your local environment
+
+# Optional - download your own dataset using the NEON API - this file is already available in the NEON_workshop/data
+#system("cd ~/data && wget -q https://neon-aop-products.s3.data.neonscience.org:443/2019/FullSite/D17/2019_SJER_4/L3/Spectrometer/Reflectance/NEON_D17_SJER_DP3_257000_4112000_reflectance.h5 -O NEON_D17_SJER_DP3_257000_4112000_reflectance.h5")
+
+# Use this line to work with the dataset already saved to the NEON_workshop directory
+# Change this to "~/data/" if you want to download the dataset above using the line above
+wd <- "~/NEON_workshop/data/" #This will depend on your local environment
 setwd(wd)
 
-# define filepath to the hyperspectral dataset
-f <- paste0(wd,"NEON_hyperspectral_tutorial_example_subset.h5")
+# Define the file name to be opened
+f <- paste0(wd,"NEON_D17_SJER_DP3_257000_4112000_reflectance.h5")
 
 # read in the wavelength information from the HDF5 file
 wavelengths <- h5read(f,"/SJER/Reflectance/Metadata/Spectral_Data/Wavelength")
@@ -30,10 +35,13 @@ scaleFact <- reflInfo$Scale_Factor
 
 ## ----read-in-RGB-and-plot--------------------------------------------------------------
 
-system("cd ~/data && wget -q https://ndownloader.figshare.com/files/21767328 -O NEON_hyperspectral_tutorial_example_RGB_stack_image.tif")
+# This line will download the example subset RGB image - this is 1/4 the size of the full hyperspectral tile
+# and is used along with the example data subset found on the tutorial webpage
+# For this Cyverse workshop, we will use the full-size hyperspectral tile and RGB image
+#system("cd ~/data && wget -q https://ndownloader.figshare.com/files/21767328 -O NEON_hyperspectral_tutorial_example_RGB_stack_image.tif")
 
 # Read in RGB image as a 'stack' rather than a plain 'raster'
-rgbStack <- stack(paste0(wd,"NEON_hyperspectral_tutorial_example_RGB_stack_image.tif"))
+rgbStack <- stack("~/NEON_workshop/data/NEON_hyperspectral_tutorial_example_RGB_stack_image_full.tif")
 
 # Plot as RGB image
 plotRGB(rgbStack,
