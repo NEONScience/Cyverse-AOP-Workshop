@@ -3,14 +3,17 @@
 # Load needed packages
 library(raster)
 library(rgdal)
+library(httr)
+library(jsonlite)
+library(dplyr, quietly=T)
+library(downloader)
 
 # set working directory to ensure R can find the file we wish to import and where
 # we want to save our files. Be sure to move the download into your working directory!
 system("mkdir ~/data")
 
-# Optional - download your own dataset using the NEON API - this file is already available in the NEON_workshop/data
+# Optional - download the example dataset shown in the assoiciated tutorial
 #system("cd ~/data && wget -q https://ndownloader.figshare.com/files/7907590 -O NEONDSFieldSiteSpatialData.zip && unzip NEONDSFieldSiteSpatialData.zip")
-
 
 
 # Use this line to work with the dataset already saved to the NEON_workshop directory
@@ -20,12 +23,8 @@ setwd(wd)
 
 ## ----download-topo-in-bulk-------------------------
 
-library(httr)
-library(jsonlite)
-library(dplyr, quietly=T)
-library(downloader)
-
 # Use the NEON API to request information about available data products
+# See: https://data.neonscience.org/data-api/ for more information about the API
 
 # Request data using the GET function & the API call
 req <- GET("http://data.neonscience.org/api/v0/products/DP3.30024.001")
@@ -78,7 +77,7 @@ x$fun <- mean
 x$na.rm <- TRUE
 
 # Make the mosaic of four CHM tiles
-DSM <- do.call(mosaic, x)
+system.time(DSM <- do.call(mosaic, x))
 
 plot(DSM, col=terrain.colors(100))
 
@@ -118,27 +117,6 @@ system.time(
 DTM <- do.call(mosaic, x)
 )
 plot(DTM, col=terrain.colors(100))
-## ----import-dsm---------------------------------------------------------------------------
-
-# assign raster to object
-dsm <- raster(paste0(wd,"NEON-DS-Field-Site-Spatial-Data/SJER/DigitalSurfaceModel/SJER2013_DSM.tif"))
-
-# view info about the raster.
-dsm
-
-# plot the DSM
-plot(dsm, main="Lidar Digital Surface Model \n SJER, California")
-
-
-
-## ----plot-DTM-----------------------------------------------------------------------------
-
-# import the digital terrain model
-dtm <- raster(paste0(wd,"NEON-DS-Field-Site-Spatial-Data/SJER/DigitalTerrainModel/SJER2013_DTM.tif"))
-
-plot(dtm, main="Lidar Digital Terrain Model \n SJER, California")
-
-
 
 ## ----calculate-plot-CHM-------------------------------------------------------------------
 
@@ -155,4 +133,4 @@ plot(CHM, main="Lidar Canopy Height Model \n TEAK, California")
 # write out the CHM in tiff format. 
 writeRaster(CHM,paste0(wd,"CHM_TEAK.tif"),"GTiff")
 
-
+Sys.time()
