@@ -1,3 +1,7 @@
+# This script based on the tutorial found here: https://www.neonscience.org/create-chm-rasters-r
+before <- Sys.time()
+
+
 ## ----set-up, message=FALSE, warning=FALSE-------------------------------------------------
 
 # Load needed packages
@@ -47,12 +51,13 @@ elev.files <- jsonlite::fromJSON(content(elev_TEAK, as="text"))
 
 View(elev.files$data$files)
 
+# Select only the DSM TIFF files from the list
 DSM.files=elev.files$data$files[grep("DSM.tif", elev.files$data$files$name, fixed = T),]
 
 View(DSM.files)
 
 ## now, make a loop to download every file by pasting name together
-
+# First, make new dir to save into
 system("mkdir ~/data/DSM/")
 system("mkdir ~/data/DSM/TEAK/")
 pre = "cd ~/data/DSM/TEAK/ && wget -q "
@@ -67,25 +72,23 @@ for(f in 1:length(DSM.files$name)){
 
 
 ## Mosaic DSMs
-a <- list.files("~/data/DSM/TEAK/", pattern = glob2rx("*.tif$"), full.names = TRUE)
-a
+DSM_list <- list.files("~/data/DSM/TEAK/", pattern = glob2rx("*.tif$"), full.names = TRUE)
+DSM_list
 
 # These steps from the 'mosaic()' function help files:
-x <- lapply(a, raster)
-names(x)[1:2] <- c('x', 'y')
-x$fun <- mean
-x$na.rm <- TRUE
+DSM_raster_list <- lapply(DSM_list, raster)
+names(DSM_raster_list)[1:2] <- c('x', 'y')
+DSM_raster_list$fun <- mean
+DSM_raster_list$na.rm <- TRUE
 
 # Make the mosaic of four CHM tiles
-system.time(DSM <- do.call(mosaic, x))
+system.time(DSM_mosaic <- do.call(mosaic, DSM_raster_list))
 
-plot(DSM, col=terrain.colors(100))
+plot(DSM_mosaic, col=terrain.colors(100))
 
 
 ## Do the same for DTM
 DTM.files=elev.files$data$files[grep("DTM.tif", elev.files$data$files$name, fixed = T),]
-
-View(DTM.files)
 
 ## now, make a loop to download every file by pasting name together
 
@@ -103,25 +106,24 @@ for(f in 1:length(DTM.files$name)){
 
 
 ## Mosaic DTMs
-a <- list.files("~/data/DTM/TEAK", pattern = glob2rx("*.tif$"), full.names = TRUE)
-a
+DTM_list <- list.files("~/data/DTM/TEAK", pattern = glob2rx("*.tif$"), full.names = TRUE)
+DTM_list
 
 # These steps from the 'mosaic()' function help files:
-x <- lapply(a, raster)
-names(x)[1:2] <- c('x', 'y')
-x$fun <- mean
-x$na.rm <- TRUE
+DTM_raster_list <- lapply(DTM_list, raster)
+names(DTM_raster_list)[1:2] <- c('x', 'y')
+DTM_raster_list$fun <- mean
+DTM_raster_list$na.rm <- TRUE
 
 # Make the mosaic of four CHM tiles
-system.time(
-DTM <- do.call(mosaic, x)
-)
-plot(DTM, col=terrain.colors(100))
+system.time(DTM <- do.call(mosaic, DTM_raster_list))
+
+plot(DTM_mosaic, col=terrain.colors(100))
 
 ## ----calculate-plot-CHM-------------------------------------------------------------------
 
 # use raster math to create CHM
-CHM <- DSM - DTM
+CHM <- DSM_mosaic - DTM_mosaic
 
 # view CHM attributes
 CHM
@@ -133,4 +135,5 @@ plot(CHM, main="Lidar Canopy Height Model \n TEAK, California")
 # write out the CHM in tiff format. 
 writeRaster(CHM,paste0(wd,"CHM_TEAK.tif"),"GTiff")
 
-Sys.time()
+after <- Sys.time()
+print(after-before)
