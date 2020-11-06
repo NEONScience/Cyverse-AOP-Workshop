@@ -1,3 +1,5 @@
+## This script based on tutorial here: https://www.neonscience.org/structural-diversity-discrete-return
+
 ## ----call-libraries, results="hide"-------------------------------------
 
 ############### Packages ################### 
@@ -41,12 +43,12 @@ TEAK <- readLAS(paste0(wd,"NEON_D17_TEAK_DP1_316000_4091000_classified_point_clo
 #.laz file. Note that on Mac computers you may need to install 
 #XQuartz for 3D plots - see xquartz.org
 summary(HARV)
-plot(HARV)
+#plot(HARV)
 
 
 ## ----plot-teak-1km2-point-cloud, eval=F, comment=NA---------------------
 summary(TEAK)
-plot(TEAK)
+#plot(TEAK)
 
 
 ## ----correct-for-elevation----------------------------------------------
@@ -76,7 +78,7 @@ data.200m <- lasnormalize(data.200m, dtm)
 
 #Will often give a warning if not all points could be corrected, 
 #but visually check to see if it corrected for ground height. 
-plot(data.200m)
+#plot(data.200m)
 #There's only a few uncorrected points and we'll fix these in 
 #the next step. 
 
@@ -93,7 +95,7 @@ data.40m@data$Z[data.40m@data$Z <= .5] <- NA
 #You could change it to zero or another height depending on interests. 
 
 #visualize the clipped plot point cloud
-plot(data.40m) 
+#plot(data.40m) 
 
 
 ## ----calculate-structural-diversity-metrics, fig.cap="Canopy Height Model (CHM) of HARV study area"----
@@ -240,7 +242,7 @@ data.40m <- lasclipRectangle(data.200m,
                              xleft = (x - 20), ybottom = (y - 20),
                              xright = (x + 20), ytop = (y + 20))
 data.40m@data$Z[data.40m@data$Z <= .5] <- 0  
-plot(data.40m)
+#plot(data.40m)
 
 
 ## ----structural-diversity-function--------------------------------------
@@ -290,7 +292,7 @@ structural_diversity_metrics <- function(data.40m) {
 TEAK_structural_diversity <- structural_diversity_metrics(data.40m)
 
 
-
+data.40m
 ## ----combine results----------------------------------------------------
 
 combined_results=rbind(HARV_structural_diversity, 
