@@ -250,6 +250,8 @@ data.40m@data$Z[data.40m@data$Z <= .5] <- 0
 #Zip up all the code we previously used and write function to 
 #run all 13 metrics in a single function. 
 structural_diversity_metrics <- function(data.40m) {
+   x = extent(data.40m)[1]+20
+   y = extent(data.40m)[3]+20
    chm <- grid_canopy(data.40m, res = 1, dsmtin()) 
    mean.max.canopy.ht <- mean(chm@data@values, na.rm = TRUE) 
    max.canopy.ht <- max(chm@data@values, na.rm=TRUE) 

@@ -210,6 +210,10 @@ plots_LAS <-
 out=lapply(plots_LAS, structural_diversity_metrics)
 View(out[[1]])
 
+out_bind = do.call(rbind, out)
+row.names(out_bind)=base_crop$plotID
+View(out_bind)
+
 
 
 #} # END SITECODE
