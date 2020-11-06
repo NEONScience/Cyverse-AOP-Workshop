@@ -81,8 +81,16 @@ names(DSM_raster_list)[1:2] <- c('x', 'y')
 DSM_raster_list$fun <- mean
 DSM_raster_list$na.rm <- TRUE
 
+print("Begin DSM Mosaic")
+after <- Sys.time()
+print(after-before)
+
 # Make the mosaic of four CHM tiles
 system.time(DSM_mosaic <- do.call(mosaic, DSM_raster_list))
+
+print("End DSM Mosaic")
+after <- Sys.time()
+print(after-before)
 
 plot(DSM_mosaic, col=terrain.colors(100))
 
@@ -115,8 +123,16 @@ names(DTM_raster_list)[1:2] <- c('x', 'y')
 DTM_raster_list$fun <- mean
 DTM_raster_list$na.rm <- TRUE
 
+print("Begin DTM Mosaic")
+after <- Sys.time()
+print(after-before)
+
 # Make the mosaic of four CHM tiles
-system.time(DTM <- do.call(mosaic, DTM_raster_list))
+system.time(DTM_mosaic <- do.call(mosaic, DTM_raster_list))
+
+print("DTM Mosaic Completed")
+after <- Sys.time()
+print(after-before)
 
 plot(DTM_mosaic, col=terrain.colors(100))
 
@@ -133,7 +149,7 @@ plot(CHM, main="Lidar Canopy Height Model \n TEAK, California")
 
 ## ----write-raster-to-geotiff, eval=FALSE, comment=NA--------------------------------------
 # write out the CHM in tiff format. 
-writeRaster(CHM,paste0(wd,"CHM_TEAK.tif"),"GTiff")
+writeRaster(CHM,paste0(wd,"CHM_TEAK.tif"),"GTiff", overwrite=T)
 
 after <- Sys.time()
 print(after-before)
